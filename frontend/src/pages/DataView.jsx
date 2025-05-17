@@ -7,10 +7,14 @@ const DataView = () => {
     const [editData, setEditData] = useState(null);
 
     useEffect(() => {
-        axios.get('http://localhost:5000/api/cuy_cloud/history?limit=50')
-            .then(response => setData(response.data))
-            .catch(error => console.error('Error fetching data:', error));
+        fetchData();
     }, []);
+
+    const fetchData = () => {
+        axios.get('http://localhost:5000/api/cuy_cloud/history?limit=50')
+            .then(response => setData(response.data || []))
+            .catch(error => console.error('Error fetching data:', error));
+    };
 
     const handleDelete = (id) => {
         if (window.confirm('¿Estás seguro de eliminar este registro?')) {
@@ -28,14 +32,12 @@ const DataView = () => {
     };
 
     const handleDataAdded = () => {
-        axios.get('http://localhost:5000/api/cuy_cloud/history?limit=50')
-            .then(response => setData(response.data))
-            .catch(error => console.error('Error fetching data:', error));
+        fetchData();
         setEditData(null);
     };
 
     return (
-        <div>
+        <div className="p-6 bg-teal-50 min-h-screen">
             <h1 className="text-3xl font-bold text-teal-800 mb-6">Ver Datos Registrados</h1>
             {editData && <FormInput onDataAdded={handleDataAdded} editData={editData} />}
             <div className="bg-white p-6 rounded-xl shadow-lg overflow-x-auto">

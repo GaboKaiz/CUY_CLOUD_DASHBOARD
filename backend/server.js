@@ -15,13 +15,22 @@ app.get("/api/cuy_cloud", (req, res) => {
   });
 });
 
-// GET: Historial
+// GET: Historial (con filtro por fecha)
 app.get("/api/cuy_cloud/history", (req, res) => {
   const limit = req.query.limit || 5;
-  const query = `SELECT * FROM cuy_cloud ORDER BY fechahora DESC LIMIT ${parseInt(
-    limit
-  )}`;
-  connection.query(query, (err, results) => {
+  const date = req.query.fechahora;
+  let query = `SELECT * FROM cuy_cloud`;
+  let queryParams = [];
+
+  if (date) {
+    query += ` WHERE DATE(fechahora) = ?`;
+    queryParams.push(date);
+  }
+
+  query += ` ORDER BY fechahora DESC LIMIT ?`;
+  queryParams.push(parseInt(limit));
+
+  connection.query(query, queryParams, (err, results) => {
     if (err) return res.status(500).json({ error: err.message });
     res.json(results);
   });
@@ -60,12 +69,10 @@ app.post("/api/cuy_cloud", (req, res) => {
 
   connection.query(query, values, (err, results) => {
     if (err) return res.status(500).json({ error: err.message });
-    res
-      .status(201)
-      .json({
-        message: "Datos insertados correctamente",
-        id: results.insertId,
-      });
+    res.status(201).json({
+      message: "Datos insertados correctamente",
+      id: results.insertId,
+    });
   });
 });
 
